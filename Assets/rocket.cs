@@ -5,8 +5,12 @@ public class rocket : MonoBehaviour
     [SerializeField] AudioClip mainEngine;
     [SerializeField] AudioClip hit;
     [SerializeField] AudioClip winJingle;
+    [SerializeField] ParticleSystem flames;
+    [SerializeField] ParticleSystem explosion;
+    [SerializeField] ParticleSystem fireWorks;
+
     [SerializeField] private float rcsThrust = 100f;
-    [SerializeField] private float mainThrust = 800f;
+    [SerializeField] private float mainThrust = 1500f;
 
     
     Rigidbody rigidBody;
@@ -47,14 +51,17 @@ public class rocket : MonoBehaviour
                 break;
             case "Finish":
                 state = State.Transceding;
-                Invoke("LoadNextScene", 1f);
+                Invoke("LoadNextScene", 2f);
                 audioSource.PlayOneShot(winJingle);
+                fireWorks.Play();
                 break;
             default:
                 audioSource.PlayOneShot(hit);
                 state = State.Dying;
+                flames.Stop();
+                explosion.Play();
                 Invoke("LoadNextScene", 3f);
-                print("time to die");
+
                 break;
         }
     }
@@ -80,6 +87,7 @@ public class rocket : MonoBehaviour
         else
         {
             audioSource.Stop();
+            flames.Stop();
             thrustOn = false;
         }
     }
@@ -87,12 +95,15 @@ public class rocket : MonoBehaviour
     private void ApplyThrust()
     {
         thrustOn = true;
+
+
         float thrustThisFrame = mainThrust * Time.deltaTime;
         rigidBody.AddRelativeForce(Vector3.up * thrustThisFrame);
         if (!audioSource.isPlaying)
         {
             audioSource.PlayOneShot(mainEngine);
         }
+        flames.Play();
     }
 
     private void RespondToRotateInput()
