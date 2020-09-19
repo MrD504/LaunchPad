@@ -1,69 +1,101 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 public class rocket : MonoBehaviour
 {
-    Rigidbody rigidBody;
-    AudioSource m_ThrustSound;
-    bool thrustOn = false;
-
+    [SerializeField] AudioClip mainEngine;
+    [SerializeField] AudioClip hit;
+    [SerializeField] AudioClip winJingle;
     [SerializeField] private float rcsThrust = 100f;
     [SerializeField] private float mainThrust = 800f;
+
+    
+    Rigidbody rigidBody;
+    AudioSource audioSource = default;
+    
+    bool thrustOn = false;
+
     // Start is called before the first frame update
+
+    enum State { Alive, Dying, Transceding };
+    State state = State.Alive;
+
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
-        m_ThrustSound = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Thrust();
-        Rotate();
+        if(state == State.Alive)
+        {
+            RespondToThrustInput();
+            RespondToRotateInput();
+        }
     }
 
     void OnCollisionEnter (Collision collision)
     {
+        if (state != State.Alive) { return; } // ignore collsions when dead
+        audioSource.Stop(); // stop all sounds before playing next sound
+
         switch (collision.gameObject.tag)
         {
             case "Friendly":
                 print("special friend");
                 break;
-            case "Fuel":
-                print("Refueled");
-                break;
             case "Finish":
-                print("You win");
+                state = State.Transceding;
+                Invoke("LoadNextScene", 1f);
+                audioSource.PlayOneShot(winJingle);
                 break;
             default:
+                audioSource.PlayOneShot(hit);
+                state = State.Dying;
+                Invoke("LoadNextScene", 3f);
                 print("time to die");
                 break;
         }
     }
-    private void Thrust()
+
+    private void LoadNextScene()
+    {
+        if (state == State.Dying)
+        {
+            SceneManager.LoadScene(0); // allow for more than 2 levels
+        } else
+        {
+            SceneManager.LoadScene(1);
+        }
+    }
+
+    private void RespondToThrustInput()
     {
         // can thrust while rotating
         if (Input.GetKey(KeyCode.Space))
         {
-            thrustOn = true;
-            float thrustThisFrame = mainThrust * Time.deltaTime;
-            rigidBody.AddRelativeForce(Vector3.up * thrustThisFrame);
-            if (!m_ThrustSound.isPlaying)
-            {
-                m_ThrustSound.Play();
-            }
+            ApplyThrust();
         }
         else
         {
+            audioSource.Stop();
             thrustOn = false;
-            m_ThrustSound.Stop();
         }
     }
 
-    private void Rotate()
+    private void ApplyThrust()
+    {
+        thrustOn = true;
+        float thrustThisFrame = mainThrust * Time.deltaTime;
+        rigidBody.AddRelativeForce(Vector3.up * thrustThisFrame);
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(mainEngine);
+        }
+    }
+
+    private void RespondToRotateInput()
     {
         rigidBody.freezeRotation = true; // freeze normal physics control of rotation
 
@@ -71,7 +103,7 @@ public class rocket : MonoBehaviour
         float rotationThisFrame = rcsThrust * Time.deltaTime;
         if (!thrustOn)
         {
-            rotationThisFrame = rotationThisFrame / 2;
+            rotationThisFrame = rotationThisFrame / 4;
         }
 
             if (Input.GetKey(KeyCode.A))

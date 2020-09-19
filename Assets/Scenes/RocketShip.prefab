@@ -1210,6 +1210,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9de362849e975b42aeeca51a3e89ced, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainEngine: {fileID: 8300000, guid: 88099715668b0994bb17c67ed03a7450, type: 3}
+  hit: {fileID: 8300000, guid: f43cf719004acbe4c929dbd7c970637f, type: 3}
+  winJingle: {fileID: 8300000, guid: 4134cd664aa7cae4aa3ccf4559361646, type: 3}
   rcsThrust: 200
   mainThrust: 800
 --- !u!82 &2920699572785075352
@@ -1222,7 +1225,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 4eb4d1be7bac8784ab84a75a499f1506, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
