@@ -73,14 +73,14 @@ public class rocket : MonoBehaviour
             SceneManager.LoadScene(0); // allow for more than 2 levels
         } else
         {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
 
     private void RespondToThrustInput()
     {
         // can thrust while rotating
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
         {
             ApplyThrust();
         }
@@ -117,11 +117,11 @@ public class rocket : MonoBehaviour
             rotationThisFrame = rotationThisFrame / 4;
         }
 
-            if (Input.GetKey(KeyCode.A))
+            if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
             {
                 transform.Rotate(Vector3.forward * rotationThisFrame);
             }
-            else if (Input.GetKey(KeyCode.D))
+            else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
             {
                 transform.Rotate(-(Vector3.forward * rotationThisFrame));
             }
